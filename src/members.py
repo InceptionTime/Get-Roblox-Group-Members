@@ -2,6 +2,7 @@ import requests
 import csv
 
 GROUP_ID = 1  # Add group id
+RANK_NAME = 'RANK NAME'  # Add rank name
 
 
 def Send_Request(endpoint):
@@ -38,7 +39,7 @@ def Get_Role_From_Group(role_name):
 
 def main():
     # Update string to role name
-    ROLE_ID = Get_Role_From_Group("RANK NAME")
+    ROLE_ID = Get_Role_From_Group(RANK_NAME)
     if ROLE_ID == None:
         print("Role not found")
         return
