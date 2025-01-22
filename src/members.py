@@ -10,6 +10,7 @@ def Send_Request(endpoint):
         'Content-type': 'application/json',
         'Accept': 'application/json',
     }
+
     try:
         response = requests.get(endpoint, headers=headers)
     except ConnectionError as e:
@@ -22,18 +23,17 @@ def Send_Request(endpoint):
         if response.status_code == 200:
             json = response.json()
             return json
-        else:
-            print(f"Status code:\n{response.status_code} - {endpoint}")
-            return None
+
+        print(f"Status code:\n{response.status_code} - {endpoint}")
+        return None
 
 
 def Get_Role_From_Group(role_name):
-    Roles = Send_Request(
-        f"https://groups.roblox.com/v1/groups/{GROUP_ID}/roles")
+    Roles = Send_Request(f"https://groups.roblox.com/v1/groups/{GROUP_ID}/roles")
 
-    for role in Roles['roles']:
-        if role_name in role['name']:
-            return role['id']
+    for role in Roles.get('roles'):
+        if role_name in role.get('name'):
+            return role.get('id')
     return None
 
 
@@ -41,7 +41,7 @@ def main():
     # Update string to role name
     if RANK_NAME is not None:
         ROLE_ID = Get_Role_From_Group(RANK_NAME)
-        if ROLE_ID == None:
+        if ROLE_ID is None:
             print("Role not found")
             return
 
@@ -50,15 +50,15 @@ def main():
     with open('data.csv', 'w', newline='', encoding='utf-8') as file:
         writer = csv.writer(file)
         writer.writerow(["Username", "User ID"])
-        for user in Users['data']:
+        for user in Users.get('data'):
             if user:
                 user = user.get('user')
                 username = user.get('username')
                 userId = user.get('userId')
                 writer.writerow([username, userId])
 
-        while Users['nextPageCursor'] != None:
-            for user in Users['data']:
+        while Users.get('nextPageCursor') is not None:
+            for user in Users.get('data'):
                 if user:
                     user = user.get('user')
                     username = user.get('username')
