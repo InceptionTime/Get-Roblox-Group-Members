@@ -1,8 +1,8 @@
 import requests
 import csv
 
-GROUP_ID = 1  # Add group id
-RANK_NAME = 'RANK NAME'  # Add rank name
+GROUP_ID = 4358041  # Add group id
+RANK_NAME = None  # Add rank name or None
 
 
 def Send_Request(endpoint):
@@ -39,26 +39,32 @@ def Get_Role_From_Group(role_name):
 
 def main():
     # Update string to role name
-    ROLE_ID = Get_Role_From_Group(RANK_NAME)
-    if ROLE_ID == None:
-        print("Role not found")
-        return
+    if RANK_NAME is not None:
+        ROLE_ID = Get_Role_From_Group(RANK_NAME)
+        if ROLE_ID == None:
+            print("Role not found")
+            return
 
-    Users = Send_Request(
-        f"https://groups.roblox.com/v1/groups/{GROUP_ID}/roles/{ROLE_ID}/users?limit=100&sortOrder=Asc")
+    Users = Send_Request(f"https://groups.roblox.com/v1/groups/{GROUP_ID}/roles/{ROLE_ID}/users?limit=100&sortOrder=Asc") if RANK_NAME is not None else Send_Request(f"https://groups.roblox.com/v1/groups/{GROUP_ID}/users?limit=100&sortOrder=Asc")
 
-    with open('data.csv', 'w', newline='') as file:
+    with open('data.csv', 'w', newline='', encoding='utf-8') as file:
         writer = csv.writer(file)
         writer.writerow(["Username", "User ID"])
         for user in Users['data']:
-            writer.writerow([user['username'], user['userId']])
+            if user:
+                user = user.get('user')
+                username = user.get('username')
+                userId = user.get('userId')
+                writer.writerow([username, userId])
 
         while Users['nextPageCursor'] != None:
             for user in Users['data']:
-                print(user)
-                writer.writerow([user['username'], user['userId']])
-            Users = Send_Request(
-                f"https://groups.roblox.com/v1/groups/{GROUP_ID}/roles/{ROLE_ID}/users?limit=100&sortOrder=Asc&cursor={Users['nextPageCursor']}")
+                if user:
+                    user = user.get('user')
+                    username = user.get('username')
+                    userId = user.get('userId')
+                    writer.writerow([username, userId])
+            Users = Send_Request(f"https://groups.roblox.com/v1/groups/{GROUP_ID}/roles/{ROLE_ID}/users?limit=100&sortOrder=Asc&cursor={Users['nextPageCursor']}") if RANK_NAME is not None else Send_Request(f"https://groups.roblox.com/v1/groups/{GROUP_ID}/users?limit=100&sortOrder=Asc")
         print("Done")
 
 
